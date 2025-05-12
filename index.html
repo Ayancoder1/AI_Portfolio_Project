@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+            color: #333;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark-theme {
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        nav {
+            background: #fff;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        body.dark-theme nav {
+            background: #2c2c2c;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 2rem;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        body.dark-theme nav ul li a {
+            color: #e0e0e0;
+        }
+
+        nav ul li a:hover {
+            color: #007bff;
+        }
+
+        body.dark-theme nav ul li a:hover {
+            color: #00ddeb;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #333;
+            transition: color 0.3s;
+        }
+
+        body.dark-theme .theme-toggle {
+            color: #e0e0e0;
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #007bff, #00ddeb);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            transition: background 0.3s;
+        }
+
+        body.dark-theme .hero {
+            background: linear-gradient(135deg, #004085, #008b94);
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hero-content img.profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1.5rem;
+            border: 4px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            max-width: 600px;
+        }
+
+        .section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-card {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s;
+        }
+
+        body.dark-theme .project-card {
+            background: #2c2c2c;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .project-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        body.dark-theme .project-card:hover {
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+        }
+
+        .project-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: opacity 0.3s ease;
+        }
+
+        .project-card:hover img {
+            opacity: 0.8;
+        }
+
+        .project-card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 123, 255, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        body.dark-theme .project-card-overlay {
+            background: rgba(0, 221, 235, 0.3);
+        }
+
+        .project-card:hover .project-card-overlay {
+            opacity: 1;
+        }
+
+        .project-card-content {
+            padding: 1.5rem;
+        }
+
+        .project-card h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .chat-bubble {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #007bff;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        body.dark-theme .chat-bubble {
+            background: #00ddeb;
+        }
+
+        .chat-bubble:hover {
+            background: #0056b3;
+        }
+
+        body.dark-theme .chat-bubble:hover {
+            background: #008b94;
+        }
+
+        .chat-bubble span {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .chat-bubble::before {
+            content: '💬';
+            font-size: 1.2rem;
+        }
+
+        .chat-overlay {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            max-width: 400px;
+            height: 80vh;
+            background: #fff;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            border-radius: 16px 16px 0 0;
+            margin: 1rem;
+            transition: background 0.3s;
+        }
+
+        body.dark-theme .chat-overlay {
+            background: #2c2c2c;
+        }
+
+        .chat-overlay.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: #007bff;
+            color: white;
+            padding: 1rem;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: background 0.3s;
+        }
+
+        body.dark-theme .chat-header {
+            background: #00ddeb;
+        }
+
+        .chat-header img.profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+
+        .chat-header h3 {
+            font-size: 1.2rem;
+            flex: 1;
+        }
+
+        .close-chat {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .chat-body {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #f8f9fa;
+            transition: background 0.3s;
+        }
+
+        body.dark-theme .chat-body {
+            background: #333;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message.user {
+            align-items: flex-end;
+        }
+
+        .message.ai {
+            align-items: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 0.8rem 1.2rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+        }
+
+        .message.user .message-content {
+            background: #007bff;
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        body.dark-theme .message.user .message-content {
+            background: #00ddeb;
+        }
+
+        .message.ai .message-content {
+            background: #e9ecef;
+            color: #333;
+            border-bottom-left-radius: 2px;
+        }
+
+        body.dark-theme .message.ai .message-content {
+            background: #444;
+            color: #e0e0e0;
+        }
+
+        .chat-footer {
+            padding: 1rem;
+            border-top: 1px solid #dee2e6;
+            background: #fff;
+            transition: background 0.3s, border-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        body.dark-theme .chat-footer {
+            background: #2c2c2c;
+            border-top: 1px solid #444;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ced4da;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s, background 0.3s;
+        }
+
+        body.dark-theme .chat-input {
+            border-color: #444;
+            background: #333;
+            color: #e0e0e0;
+        }
+
+        .chat-input:focus {
+            border-color: #007bff;
+        }
+
+        body.dark-theme .chat-input:focus {
+            border-color: #00ddeb;
+        }
+
+        .send-button {
+            background: #007bff;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        body.dark-theme .send-button {
+            background: #00ddeb;
+        }
+
+        .send-button:hover {
+            background: #0056b3;
+        }
+
+        body.dark-theme .send-button:hover {
+            background: #008b94;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .typing-indicator .message-content {
+            background: #e9ecef;
+            color: #333;
+            border-bottom-left-radius: 2px;
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.2rem;
+        }
+
+        body.dark-theme .typing-indicator .message-content {
+            background: #444;
+            color: #e0e0e0;
+        }
+
+        .typing-indicator .dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #333;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1s infinite;
+        }
+
+        body.dark-theme .typing-indicator .dot {
+            background: #e0e0e0;
+        }
+
+        .typing-indicator .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-4px);
+                opacity: 0.5;
+            }
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            transition: background 0.3s;
+        }
+
+        body.dark-theme footer {
+            background: #1a1a1a;
+        }
+
+        footer a {
+            color: #00ddeb;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            nav ul li {
+                margin: 0 1rem;
+            }
+
+            .hero-content img.profile-pic {
+                width: 120px;
+                height: 120px;
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .hero-content p {
+                font-size: 1rem;
+            }
+
+            .chat-bubble {
+                bottom: 1rem;
+                right: 1rem;
+                padding: 0.8rem 1.2rem;
+            }
+
+            .chat-bubble span {
+                font-size: 0.9rem;
+            }
+
+            .chat-overlay {
+                max-width: 100%;
+                margin: 0;
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content img.profile-pic {
+                width: 100px;
+                height: 100px;
+            }
+
+            .hero-content h1 {
+                font-size: 1.5rem;
+            }
+
+            .section {
+                padding: 2rem 1rem;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><button class="theme-toggle" aria-label="Toggle theme">🌙</button></li>
+        </ul>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <img src="https://i.ibb.co/FLcpnjtP/Ayan-Photo.jpg"  alt="Profile Picture" class="profile-pic">
+            <h1>Welcome to My Portfolio</h1>
+            <p>I am an aspiring electrical engineer passionate about circuit design, coding, and creating smart, real-world tech solutions.</p>
+        </div>
+    </section>
+
+    <section id="about" class="section">
+        <h2>About Me</h2>
+        <p>I am Ayan Kar, a 1st-year Electrical Engineering student at Narula Institute of Technology, passionate about circuit design, programming, and emerging tech like AI and web development. I’ve gained hands-on experience in HTML, C, C++, and circuit design through workshops, coding clubs, and tech events, including being 1st runner-up at Srijan’25 (Jadavpur University). I also freelance in content creation and video editing, blending creativity with technical skills. My goal is to design compact, real-world circuits and keep learning through collaboration and innovation.</p>
+    </section>
+
+    <section id="projects" class="section">
+        <h2>My Projects</h2>
+        <div class="projects-grid">
+            <div class="project-card">
+                <img src="https://i.ibb.co/DHNdknxG/Smart-Car-BT.jpg"  alt="SmartCar BT">
+                <div class="project-card-overlay">SmartCar BT</div>
+                <div class="project-card-content">
+                    <h3>SmartCar BT</h3>
+                    <p>SmartCar BT is a Bluetooth-controlled Arduino car that allows you to drive and control it wirelessly using your smartphone.</p>
+                </div>
+            </div>
+            <div class="project-card">
+                <img src="https://i.ibb.co/M57YBpH9/Smart-Illumination.jpg" alt="Smart-Illumination">
+                <div class="project-card-overlay">Smart-Illumination</div>
+                <div class="project-card-content">
+                    <h3>Smart-Illumination</h3>
+                    <p>Smart-Illumination is an automated lighting system that adjusts brightness based on ambient light and motion for energy-efficient smart lighting.</p>
+                </div>
+            </div>
+            <div class="project-card">
+                <img src="https://i.ibb.co/Y7Grh9yK/Wi-Fi-Window-Door-Alarm-Sensor.jpg" alt="Wi-Fi-Window-Door-Alarm-Sensor">
+                <div class="project-card-overlay">Wi-Fi-Window-Door-Alarm-Sensor</div>
+                <div class="project-card-content">
+                    <h3>Wi-Fi-Window-Door-Alarm-Sensor</h3>
+                    <p>Wi-Fi Window Door Alarm Sensor is a smart security device that sends real-time alerts to your phone when a window or door is opened or tampered with.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section">
+        <h2>Contact Me</h2>
+        <p>Feel free to reach out via email at <a href="mailto:your.ayankar153@gmail.com">ayankar153@gmail.com</a> or connect with me on LinkedIn <a href="https://www.linkedin.com/in/ayankar153">https://www.linkedin.com/in/ayankar153</a>.</p>
+    </section>
+
+    <div class="chat-bubble">
+        <span>Ask anything about me</span>
+    </div>
+
+    <div class="chat-overlay">
+        <div class="chat-header">
+            <img src="https://i.ibb.co/FLcpnjtP/Ayan-Photo.jpg" alt="Profile Picture" class="profile-pic">
+            <h3>Chat with Me</h3>
+            <button class="close-chat">×</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="message ai">
+                <div class="message-content">Hi, I am Ayan Kar, what do you want to know about me?</div>
+            </div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" class="chat-input" placeholder="Type your message..." id="chatInput">
+            <button class="send-button" aria-label="Send message">✈️</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 My Portfolio. All rights reserved. | <a href="#contact">Contact</a></p>
+    </footer>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyD_lEA0vCARY8hFcasDFWoiM2xpZ_JPbvI",
+    authDomain: "ayankarportfolio-2c824.firebaseapp.com",
+    projectId: "ayankarportfolio-2c824",
+    storageBucket: "ayankarportfolio-2c824.firebasestorage.app",
+    messagingSenderId: "154874923026",
+    appId: "1:154874923026:web:1825a6441538a2acc530cb",
+    measurementId: "G-YSJHJNL10L"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+        const chatBubble = document.querySelector('.chat-bubble');
+        const chatOverlay = document.querySelector('.chat-overlay');
+        const closeChat = document.querySelector('.close-chat');
+        const chatInput = document.querySelector('#chatInput');
+        const chatBody = document.querySelector('#chatBody');
+        const themeToggle = document.querySelector('.theme-toggle');
+        const sendButton = document.querySelector('.send-button');
+
+        // Constants for API and description
+        const FULL_NAME = 'Ayan Kar';
+        const MY_DESCRIPTION = 'I am Ayan Kar, a 1st-year Electrical Engineering student at Narula Institute of Technology with a passion for circuit design, web development, and emerging technologies like AI. I’ve been building a strong foundation in programming (HTML, C, C++) and circuit design, actively engaging in coding clubs, workshops, and tech events—recently securing 1st runner-up at the Lord of the Rings event in Jadavpur University’s Srijan’25 tech fest. My goal is to become a circuit design engineer focused on creating compact, efficient systems for real-world applications. Alongside my technical interests, I freelance in content writing, script writing, and video editing, combining creativity with engineering. Curious and driven, I’m always exploring new ideas and eager to contribute to the tech community.';
+        const API_KEY = 'AIzaSyC-1X30er-HcmwLhAi_Yd7fs9Fc0KwBeg4'; // Replace with actual API key
+        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
+        // Toggle chat overlay and reset initial message
+        chatBubble.addEventListener('click', () => {
+            chatOverlay.classList.toggle('active');
+            chatBubble.style.display = chatOverlay.classList.contains('active') ? 'none' : 'flex';
+            // Reset chat body with initial message
+            if (chatOverlay.classList.contains('active')) {
+                chatBody.innerHTML = `
+                    <div class="message ai">
+                        <div class="message-content">Hi, I am ${FULL_NAME}, what do you want to know about me?</div>
+                    </div>
+                `;
+            }
+        });
+
+        closeChat.addEventListener('click', () => {
+            chatOverlay.classList.remove('active');
+            chatBubble.style.display = 'flex';
+        });
+
+        // Function to show typing indicator
+        const showTypingIndicator = () => {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="message-content">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            `;
+            chatBody.appendChild(typingDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+            return typingDiv;
+        };
+
+        // Function to remove typing indicator
+        const removeTypingIndicator = (typingDiv) => {
+            if (typingDiv && typingDiv.parentNode) {
+                typingDiv.parentNode.removeChild(typingDiv);
+            }
+        };
+
+        // Function to send message
+        const sendMessage = async () => {
+            if (chatInput.value.trim() !== '') {
+                // Add user message
+                const userMessage = document.createElement('div');
+                userMessage.className = 'message user';
+                userMessage.innerHTML = `<div class="message-content">${chatInput.value}</div>`;
+                chatBody.appendChild(userMessage);
+
+                const userQuery = chatInput.value;
+                chatInput.value = ''; // Clear input
+
+                // Show typing indicator
+                const typingDiv = showTypingIndicator();
+
+                // Simulate API call
+                try {
+                    const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{
+                                    text: `User_message: ${userQuery}. Reply naturally to the usermessage and if required then answer based on: ${MY_DESCRIPTION} or just simply give friendly reply. and reply in a way that Ayan Kar is himself talking. reply in short sentences`
+                                }]
+                            }]
+                        })
+                    });
+
+                    if (!response.ok) throw new Error('API request failed');
+
+                    const data = await response.json();
+                    const aiResponse = data.candidates[0].content.parts[0].text;
+
+                    // Remove typing indicator
+                    removeTypingIndicator(typingDiv);
+
+                    // Add AI response
+                    const aiMessage = document.createElement('div');
+                    aiMessage.className = 'message ai';
+                    aiMessage.innerHTML = `<div class="message-content">${aiResponse}</div>`;
+                    chatBody.appendChild(aiMessage);
+                } catch (error) {
+                    // Remove typing indicator
+                    removeTypingIndicator(typingDiv);
+
+                    // Fallback dummy response
+                    const aiMessage = document.createElement('div');
+                    aiMessage.className = 'message ai';
+                    aiMessage.innerHTML = `<div class="message-content">Hey, thanks for asking! I'm Ayan Kar. I love building apps. Want to know about my projects or skills?</div>`;
+                    chatBody.appendChild(aiMessage);
+                }
+
+                // Scroll to bottom
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+        };
+
+        // Handle message sending on Enter keypress
+        chatInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                await sendMessage();
+            }
+        });
+
+        // Handle message sending on send button click
+        sendButton.addEventListener('click', async () => {
+            await sendMessage();
+        });
+
+        // Toggle dark theme
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            themeToggle.textContent = document.body.classList.contains('dark-theme') ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
